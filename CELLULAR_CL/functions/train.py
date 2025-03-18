@@ -1151,7 +1151,8 @@ class train_module():
                                     batch_keys=self.batch_keys, 
                                     temperature=init_temperature, 
                                     min_temperature=min_temperature, 
-                                    max_temperature=max_temperature)
+                                    max_temperature=max_temperature,
+                                    device = device)
         
         # Define Adam optimer
         optimizer = optim.Adam([{'params': model_step_1.parameters(), 'lr': init_lr}, {'params': loss_module.parameters(), 'lr': init_lr}], weight_decay=5e-5)
