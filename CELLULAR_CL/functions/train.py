@@ -164,15 +164,15 @@ class prep_data(data.Dataset):
         # Step 2: Calculate centroids for each cell type cluster of each batch effect
         centroids = {}
         for batch_effect in adata.obs[self.batch_keys[0]].unique():
-            for cell_type in adata.obs['cell_type'].unique():
-                mask = (adata.obs[self.batch_keys[0]] == batch_effect) & (adata.obs['cell_type'] == cell_type)
+            for cell_type in adata.obs[self.target_key].unique():
+                mask = (adata.obs[self.batch_keys[0]] == batch_effect) & (adata.obs[self.target_key] == cell_type)
                 centroid = np.mean(adata_pca[mask], axis=0)
                 centroids[(batch_effect, cell_type)] = centroid
 
         # Step 3: Calculate the average centroid distance between all batch effects
-        average_distance_matrix = np.zeros((len(adata.obs['cell_type'].unique()), len(adata.obs['cell_type'].unique())))
-        for i, cell_type_i in enumerate(adata.obs['cell_type'].unique()):
-            for j, cell_type_j in enumerate(adata.obs['cell_type'].unique()):
+        average_distance_matrix = np.zeros((len(adata.obs[self.target_key].unique()), len(adata.obs[self.target_key].unique())))
+        for i, cell_type_i in enumerate(adata.obs[self.target_key].unique()):
+            for j, cell_type_j in enumerate(adata.obs[self.target_key].unique()):
                 distances = []
                 for batch_effect in adata.obs[self.batch_keys[0]].unique():
                     centroid_i = torch.tensor(centroids[(batch_effect, cell_type_i)], dtype=torch.float32, requires_grad=False)
@@ -188,7 +188,7 @@ class prep_data(data.Dataset):
                 average_distance_matrix[i, j] = average_distance
 
         # Convert average_distance_matrix into a DataFrame
-        average_distance_df = pd.DataFrame(average_distance_matrix, index=self.label_encoder.transform(adata.obs['cell_type'].unique()), columns=self.label_encoder.transform(adata.obs['cell_type'].unique()))
+        average_distance_df = pd.DataFrame(average_distance_matrix, index=self.label_encoder.transform(adata.obs[self.target_key].unique()), columns=self.label_encoder.transform(adata.obs[self.target_key].unique()))
 
         # Replace NaN values with 0
         average_distance_df = average_distance_df.fillna(0)
