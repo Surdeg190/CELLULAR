@@ -1021,8 +1021,9 @@ class train_module():
 
                 # Update learning rate
                 lr_scheduler.step()
-        except:
+        except Exception as e:
             print(f"**Training forced to finish early due to error during training**")
+            print(e)
 
         print()
         print(f"**Finished training**")
