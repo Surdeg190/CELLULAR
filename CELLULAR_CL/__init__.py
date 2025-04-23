@@ -15,6 +15,7 @@ def train(adata,
           target_key: str,
           batch_key: str,
           latent_dim: int=100,
+          HVG: bool=True,
           HVGs: int=2000,
           model_path: str="trained_models/",
           train_classifier: bool=False,
@@ -60,7 +61,10 @@ def train(adata,
     
     latent_dim (int, optional)
         Dimension of latent space produced by CELLULAR. Default is 100.
-    
+
+    HVG (bool, optional)
+        A boolean for whether to filter for highly variable genes or not
+        
     HVGs (int, optional)
         Number of highly variable genes (HVGs) to select as input to CELLULAR. Default is 2000.
     
@@ -171,7 +175,11 @@ def train(adata,
     -------
     None
     """
-
+    
+    # If not using HVGs set of HVGs to the number of genes
+    if not HVG:
+        HVGs = adata.n_vars
+                    
     # Raise error if the number of HVGs is not possible to achieve
     if adata.n_vars < HVGs:
         raise ValueError('Number of genes in adata is less than number of HVGs specified to be used.')
@@ -183,7 +191,7 @@ def train(adata,
     # Initiate training class
     train_env = trainer_fun.train_module(data_path=adata,
                                          save_model_path=model_path,
-                                         HVG=True,
+                                         HVG=HVG,
                                          HVGs=HVGs,
                                          target_key=target_key,
                                          batch_keys=[batch_key],
